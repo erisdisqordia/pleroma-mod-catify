@@ -1,0 +1,65 @@
+{
+    "nya": {
+        "enabled": true,
+        "matcher": "(^|\\s|>)な+(\\s|<|$)",
+        "replacer": {
+            "source": "な",
+            "dest": "にゃ"
+        }
+    },
+    "triggers": {
+        "cat": {
+            "displayName": [
+                "🐱",
+                "😺",
+                "🐈",
+                "😼",
+                "😹",
+                "にゃ",
+                "cat",
+                "mew",
+                "meow",
+                "nya",
+                "miaou",
+                "miau",
+                "kitten",
+                "kitn",
+                "ktn",
+                "kadse",
+                "catte"
+            ],
+            "instances": [
+                "misskey.io"
+            ]
+        },
+        "bear": {
+            "displayName": [
+                "🐻",
+                "tf2",
+                "romaboo"
+            ],
+            "instances": []
+        },
+        "bob": {
+            "displayName": [
+                "eris",
+                "bob"
+            ],
+            "instances": [
+                "disqordia.space"
+            ]
+        },
+        "rabbit": {
+            "displayName": [
+                "🐰",
+                "🐇",
+                "rabbit",
+                "bun",
+                "hase",
+                "häschen",
+                "kaninchen"
+            ],
+            "instances": []
+        }
+    }
+}
