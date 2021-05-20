@@ -19,6 +19,9 @@
 .catified.bob>:not(.status-container) .Avatar::after {
   border-color: #ca2ff5 !important;
 }
+.catified>:not(.status-container) .avatar-row .Avatar::before, .catified>:not(.status-container) .avatar-row .Avatar::after {
+  border: 2px solid !important;
+}
 
 .catified>:not(.status-container) .Avatar {
   overflow: visible;
