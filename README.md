@@ -8,10 +8,9 @@ Sadly, we don't have a cat flag in our profiles in pleroma, so this script uses 
 do this in your pleroma-mods directory
 
 ```
-sudo -u pleroma git clone https://github.com/absturztaube/pleroma-mod-catify.git
+sudo -u pleroma git clone https://github.com/erisdisqordia/pleroma-mod-catify.git
 ```
-
-copy `config.json.example` to `config.json`
+edit `config.json` to your liking
 
 add `catify` to your pleroma-mod-loader config
 
