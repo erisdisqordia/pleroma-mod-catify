@@ -231,8 +231,7 @@ function PleromaModCatify () {
       bear: {
         displayName: [
           "🐻",
-          "tf2",
-          "romaboo"
+          "bear"
         ],
         instances: []
       },
@@ -244,6 +243,14 @@ function PleromaModCatify () {
         instances: [
           "disqordia.space"
         ],
+      },
+      puff: {
+        displayName: [
+          "puff",
+          "emilis",
+          "romaboo"
+        ],
+        instances: []
       },
       rabbit: {
         displayName: [

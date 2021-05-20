@@ -19,6 +19,13 @@
 .catified.bob>:not(.status-container) .Avatar::after {
   border-color: #ca2ff5 !important;
 }
+.catified.puff>:not(.status-container) .Avatar::before, .catified.puff>:not(.status-container) .Avatar::after {
+  border: 3px solid !important;
+  border-color: #fcc0f5 !important;
+  background-color: #2a2d30 !important;
+  box-shadow: none !important;
+  margin-top: 5px;
+}
 .catified>:not(.status-container) .avatar-row .Avatar::before, .catified>:not(.status-container) .avatar-row .Avatar::after {
   border: 2px solid !important;
 }
