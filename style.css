@@ -1,68 +1,134 @@
-.cat .avatar::before, .cat .avatar::after {
-        content: "";
-        display: inline-block;
-        border: 4px solid;
-        box-sizing: border-box;
-        width: 50%;
-        height: 50%;
-        background-color: inherit;
-        border-color: inherit;
-        position: absolute;
-        z-index: 0;
+.catified>:not(.status-container) .Avatar::before, .catified>:not(.status-container) .Avatar::after {
+  content: "";
+  display: inline-block;
+  border: 4px solid;
+  box-sizing: border-box;
+  width: 50%;
+  height: 50%;
+  border-color: inherit;
+  background-color: #ff96bb;
+  box-shadow: 0px 1px 4px black;
+  position: absolute;
+  z-index: 0;
 }
 
-.cat .avatar {
-        overflow: visible;
-        border-radius: 100%!important;
+.catified.bob>:not(.status-container) .Avatar::before {
+  border-color: #c202c2 !important;
 }
 
-.cat .avatar img {
-        border-radius: 100%;
-        top: 0;
-        bottom: 0;
-        right: 0;
-        left: 0;
-        z-index: 1;
-        position: absolute;
+.catified.bob>:not(.status-container) .Avatar::after {
+  border-color: #ca2ff5 !important;
 }
 
-.cat .avatar::before {
-        border-radius: 75% 0 75% 75%;
-        transform: rotate(-37.6deg) skew(-30deg);
-        top: 0;
-        bottom: 0;
-        right: 0;
+.catified>:not(.status-container) .Avatar {
+  overflow: visible;
+  border-radius: 100%!important;
 }
 
-.cat .avatar:hover::before {
-    animation: earwiggleright 1s infinite;
+.catified .user-info-avatar-link-overlay {
+	border-radius: 100%!important;
+	z-index: 1;
 }
 
-.cat .avatar::after {
-        border-radius: 0 75% 75%;
-        transform: rotate(37.6deg) skew(30deg);
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
+.catified>:not(.status-container) .Avatar img, .catified>:not(.status-container) .Avatar canvas {
+  border-radius: 100%;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  z-index: 1;
+  position: absolute;
 }
 
-.cat .avatar:hover::after {
-    animation: earwiggleleft 1s infinite;
+.catified>:not(.status-container) .Avatar::before {
+  transform: rotate(-37.6deg) skew(-30deg);
+  top: 0;
+  bottom: 0;
+  right: 0;
+}
+
+.catified.cat>:not(.status-container) .Avatar::before {
+  border-radius: 75% 0 75% 75%;
+}
+
+.catified.bear>:not(.status-container) .Avatar::before {
+  border-radius: 75%;
+  top: -3px;
+  background-color: inherit !important;
+}
+
+.catified .Avatar:hover::before {
+  animation: earwiggleright 1s infinite;
+}
+
+.catified>:not(.status-container) .Avatar::after {
+  transform: rotate(37.6deg) skew(30deg);
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.catified.cat>:not(.status-container) .Avatar::after {
+  border-radius: 0 75% 75%;
+}
+
+.catified.bear>:not(.status-container) .Avatar::after {
+  border-radius: 75%;
+  top: -3px;
+  background-color: inherit !important;
+}
+
+.catified .Avatar:hover::after {
+  animation: earwiggleleft 1s infinite;
 }
 
 @keyframes earwiggleleft {
-    from { transform: rotate(37.6deg) skew(30deg); }
-    25% { transform: rotate(10deg) skew(30deg); }
-    50% { transform: rotate(20deg) skew(30deg); }
-    75% { transform: rotate(0deg) skew(30deg); }
-    to { transform: rotate(37.6deg) skew(30deg); }
+  from { transform: rotate(37.6deg) skew(30deg); }
+  25% { transform: rotate(10deg) skew(30deg); }
+  50% { transform: rotate(20deg) skew(30deg); }
+  75% { transform: rotate(0deg) skew(30deg); }
+  to { transform: rotate(37.6deg) skew(30deg); }
 }
 
 @keyframes earwiggleright {
-    from { transform: rotate(-37.6deg) skew(-30deg); }
-    30% { transform: rotate(-10deg) skew(-30deg); }
-    55% { transform: rotate(-20deg) skew(-30deg); }
-    75% { transform: rotate(-0deg) skew(-30deg); }
-    to { transform: rotate(-37.6deg) skew(-30deg); }
+  from { transform: rotate(-37.6deg) skew(-30deg); }
+  30% { transform: rotate(-10deg) skew(-30deg); }
+  55% { transform: rotate(-20deg) skew(-30deg); }
+  75% { transform: rotate(-0deg) skew(-30deg); }
+  to { transform: rotate(-37.6deg) skew(-30deg); }
+}
+
+.catified.rabbit>:not(.status-container) .Avatar::before,
+.catified.rabbit>:not(.status-container) .Avatar::after {
+    /* 100px makes that it's actually just rounding and not a curve between the top and the sides */
+    border-radius: 100px 100px 0 0;
+    border-width: 3px;
+    height: 100%;
+}
+.catified.rabbit>:not(.status-container) .Avatar::before {
+    transform: rotate(10deg);    
+    top: -.5rem;
+    right: 13.25%;
+    width: 18.5%;
+}
+.catified.rabbit>:not(.status-container) .Avatar::after {
+    transform: none;
+    top: -.7rem;
+    left: 13.25%;
+    width: 20%;
+}
+.catified.rabbit .Avatar:hover::before { animation: earwiggleright-rabbit 0.65s infinite; }
+.catified.rabbit .Avatar:hover::after { animation: earwiggleleft-rabbit 0.65s infinite; }
+
+@keyframes earwiggleleft-rabbit {
+  from { transform: rotate(0deg); }
+  75% { transform: rotate(-25deg); }
+  to { transform: rotate(0deg); }
+}
+
+@keyframes earwiggleright-rabbit {
+  from { transform: rotate(10deg); }
+  75% { transform: rotate(25deg); }
+  to { transform: rotate(10deg); }
 }

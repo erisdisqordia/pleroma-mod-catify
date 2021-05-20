@@ -1,331 +1,400 @@
-
 function ColorDetector (image) {
-    this.color = { r:0, g:0, b:0 };
-    this.image = image;
+  this.color = { r: 0, g: 0, b: 0 };
+  this.image = image;
 }
+[
+  function componentToHex (c) {
+    var hex = Math.max(Math.min(c, 255), 0).toString(16);
+    return hex.length === 1 ? "0" + hex : hex;
+  },
 
-ColorDetector.prototype.componentToHex = function(c) {
-    var hex = Math.max(Math.min(c, 255),0).toString(16);
-    return hex.length == 1 ? '0' + hex : hex;
-};
-
-ColorDetector.prototype.getHexColor = function(offset) {
-    var self = this;
-    if(!offset) {
-        offset = {r:0,g:0,b:0};
+  function getHexColor (offset) {
+    if (!offset) {
+      offset = { r: 0, g: 0, b: 0 };
     }
-    return "#" 
-        + self.componentToHex(self.color.r + offset.r)
-        + self.componentToHex(self.color.g + offset.g)
-        + self.componentToHex(self.color.b + offset.b);
-};
+    return "#" +
+      this.componentToHex(this.color.r + offset.r) +
+      this.componentToHex(this.color.g + offset.g) +
+      this.componentToHex(this.color.b + offset.b);
+  },
 
-ColorDetector.prototype.detect = function() {
-    var self = this;
-    var blockSize = 5,
-        canvas = document.createElement('canvas'),
-        context = canvas.getContext && canvas.getContext('2d'),
-        data, width, height,
-        i = -4,
-        rgb = {r:0,g:0,b:0},
-        length,
-        count = 0;
-    if(!context) {
-        return self.color;
-    }
+  function detect () {
+    return new Promise((resolve) => {
+      let blockSize = 5;
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext && canvas.getContext("2d");
+      let data; let width; let height;
+      let i = -4;
+      let rgb = { r: 0, g: 0, b: 0 };
+      let length;
+      let count = 0;
+      if (!context) {
+        console.warn("can't get context of avatar");
+        resolve(this.color);
+        return;
+      }
 
-    height = canvas.height = self.image.naturalHeight || self.image.offsetHeight || self.image.height;
-    width = canvas.width = self.image.naturalWidth || self.image.offsetWidth || self.image.width;
+      height = canvas.height = this.image.naturalHeight || this.image.offsetHeight || this.image.height;
+      width = canvas.width = this.image.naturalWidth || this.image.offsetWidth || this.image.width;
 
-    context.drawImage(self.image, 0, 0);
+      context.drawImage(this.image, 0, 0);
 
-    try {
+      try {
         data = context.getImageData(0, 0, width, height);
-    } catch(e) {
-        return self.color;
-    }
+      } catch (e) {
+        console.error("can't get image data");
+        console.error(e);
+        resolve(this.color);
+        return;
+      }
 
-    length = data.data.length;
+      length = data.data.length;
 
-    while ( ( i += blockSize * 4) < length ) {
+      while ((i += blockSize * 4) < length) {
         ++count;
         rgb.r += data.data[i];
-        rgb.g += data.data[i+1];
-        rgb.b += data.data[i+2];
+        rgb.g += data.data[i + 1];
+        rgb.b += data.data[i + 2];
+      }
+
+      this.color.r = ~~(rgb.r / count);
+      this.color.g = ~~(rgb.g / count);
+      this.color.b = ~~(rgb.b / count);
+
+      resolve(this.color);
+    });
+  }
+].forEach((fn) => { ColorDetector.prototype[fn.name] = fn; });
+
+function PleromaCat (handle, type) {
+  this.type = type || "cat";
+  this.handle = handle;
+  this.colors = {
+    backgroundColor: "#000000",
+    borderColor: "#000000"
+  };
+  this.config = {
+    "nya": {
+      enabled: true,
+      matcher: "(^|\s|>)な+(\s|<|$)", // eslint-disable-line no-useless-escape
+      replacer: {
+        source: "な",
+        dest: "にゃ"
+      }
     }
-
-    self.color.r = ~~(rgb.r/count);
-    self.color.g = ~~(rgb.g/count);
-    self.color.b = ~~(rgb.b/count);
-
-    return self.color;
+  };
+  this.loadConfig();
 }
-
-function PleromaCat(handle) {
-    this.handle = handle;
-    this.colors = {
-        backgroundColor: '#000000',
-        borderColor: '#000000'
-    };
-    this.config = {
-        'nya': {
-            enabled: true,
-            matcher: "(^|\s|>)な+(\s|<|$)",
-            replacer: {
-                source: "な",
-                dest: 'にゃ'
-            },
-        }
-    };
-
-    this.loadConfig();
-}
-
-PleromaCat.prototype.loadConfig = function () {
-    var self = this;
-    var configUrl = window.__pleromaModLoader.config.modDirectory
-        + "pleroma-mod-catify/config.json";
-    window.__pleromaModLoader.loadJSON("GET", configUrl, function (response) {
-        if (!response.json.nya) {
-            return;
-        }
-        self.config.nya.enabled = response.json.nya.enabled; 
-        self.config.nya.matcher = response.json.nya.matcher 
-            || self.config.nya.matcher;
-        self.config.nya.replacer.source = response.json.nya.replacer.source 
-            || self.config.nya.replacer.source;
-        self.config.nya.replacer.dest = response.json.nya.replacer.dest
-            || self.config.nya.replacer.dest;
-    }, false);
-};
-
-PleromaCat.prototype.getClassName = function() {
-    var self = this;
-    return 'USER____' + self.handle.replace(/@/g,'_AT_').replace(/\./g,'_');
-};
-
-PleromaCat.prototype.makeCat = function() {
-    var self = this;
-    var posts = document.getElementsByClassName(
-        self.getClassName()
-    );
-
-    self.makeCatByClassName('user-info');
-    self.makeCatByClassName('basic-user-card');
-
-    for(var currentPost of posts) {
-        self.makeCatByElement(currentPost);
-        self.nyaByPost(currentPost);
+[
+  function loadConfig () {
+    const json = PleromaModCatify.config;
+    if (!json.nya) {
+      return;
     }
-};
-
-PleromaCat.prototype.makeCatByClassName = function(className) {
-    var self = this;
-    if(!className) {
-        className = 'user-info';
+    this.config.nya.enabled = json.nya.enabled;
+    if (this.config.nya.enabled) {
+      this.config.nya.matcher = json.nya.matcher || this.config.nya.matcher;
+      this.config.nya.replacer.source = json.nya.replacer.source || this.config.nya.replacer.source;
+      this.config.nya.replacer.dest = json.nya.replacer.dest || this.config.nya.replacer.dest;
     }
-    var userinfos = document.getElementsByClassName(className);
-    for(var infoIndex in userinfos) {
-        if(userinfos[infoIndex].getElementsByClassName && !/cat$/.test(userinfos[infoIndex].innerText)) {
-            var handle = userinfos[infoIndex].getElementsByClassName('handle');
-            var regexHandle = new RegExp(self.handle, 'i');
-            if(handle.length > 0) {
-                if(regexHandle.test(handle[0].innerText)) {
-                    self.makeCatByElement(userinfos[infoIndex]);
-                }
-            } else {
-                handle = userinfos[infoIndex].getElementsByClassName('basic-user-card-screen-name');
-                if(handle.length > 0) {
-                    if(regexHandle.test(handle[0].innerText)) {
-                        self.makeCatByElement(userinfos[infoIndex]);
-                    }
-                }
-            }
+  },
+
+  function getClassName () {
+    return "USER____" + this.handle.replace(/@/g, "_AT_").replace(/\./g, "_");
+  },
+
+  function makeCat (element) {
+    if (!element) {
+      element = document;
+    }
+    if (element.querySelectorAll) {
+      var posts = element.querySelectorAll("." + this.getClassName());
+      this.makeCatByClassName("user-info");
+      this.makeCatByClassName("basic-user-card", "basic-user-card-screen-name");
+      for (const currentPost of posts) {
+        this.makeCatByElement(currentPost);
+        this.nyaByPost(currentPost);
+      }
+    }
+  },
+
+  function makeCatByClassName (className, usernameClass) {
+    if (!className) {
+      className = "user-info";
+    }
+    if (!usernameClass) {
+      usernameClass = "user-screen-name";
+    }
+    const userinfos = document.querySelectorAll("." + className);
+    for (const infoIndex in userinfos) {
+      if (userinfos[infoIndex].querySelector && !/cat$/.test(userinfos[infoIndex].innerText)) {
+        const handle = userinfos[infoIndex].querySelector("." + usernameClass);
+        const regexHandle = new RegExp(this.handle, "i");
+        if (handle) {
+          if (regexHandle.test(handle.innerText)) {
+            this.makeCatByElement(userinfos[infoIndex]);
+          }
         }
+      }
     }
-}
+  },
 
-PleromaCat.prototype.makeCatByElement = function(element) {
-    var self = this;
-    if(element.getElementsByClassName) {
-        if(!/cat$/.test(element.className)) {
-            element.className += ' cat';
+  function makeCatByElement (element) {
+    if (element.querySelectorAll) {
+      element.classList.add("catified");
+      element.classList.add(this.type);
+      const avatars = element.querySelectorAll(".Avatar");
+      for (const avatarIndex in avatars) {
+        const currentAvatar = avatars[avatarIndex];
+        if (currentAvatar.style) {
+          if (this.colors.borderColor === "#000000") {
+            this.detectColors(currentAvatar);
+          }
+          currentAvatar.style.backgroundColor = this.colors.backgroundColor;
+          currentAvatar.style.borderColor = this.colors.borderColor;
         }
-        var avatars = element.getElementsByClassName('avatar');
-        for(var avatarIndex in avatars) {
-            var currentAvatar = avatars[avatarIndex];
-            if(currentAvatar.style) {
-                if(self.colors.borderColor == '#000000') {
-                    self.detectColors(currentAvatar);
-                }
-                currentAvatar.style.backgroundColor = self.colors.backgroundColor;
-                currentAvatar.style.borderColor = self.colors.borderColor;
-            }
+      }
+    }
+  },
+
+  function nyaByPost (element) {
+    if (element.querySelectorAll && this.config.nya.enabled && element.classList.contains("cat")) {
+      const contents = element.querySelectorAll(".status-content");
+      for (const content of contents) {
+        if (content.innerHTML) {
+          const regex = new RegExp(this.config.nya.matcher, "g");
+          let match;
+          while ((match = regex.exec(content.innerHTML)) !== null) {
+            const source = match[0];
+            const dest = source.replace(
+              new RegExp(this.config.nya.replacer.source, "g"),
+              this.config.nya.replacer.dest
+            );
+            content.innerHTML = content.innerHTML.replace(source, dest);
+          }
         }
+      }
     }
-};
+  },
 
-PleromaCat.prototype.nyaByPost = function(element) {
-    var self = this;
-    if(element.getElementsByClassName && self.config.nya.enabled) {
-        var contents = element.getElementsByClassName('status-content');
-        for(var content of contents) {
-            if(content.innerHTML) {
-                var regex = new RegExp(self.config.nya.matcher, "g");
-                var match;
-                while((match = regex.exec(content.innerHTML))!==null) {
-                    var source = match[0];
-                    var dest = source.replace(
-                        new RegExp(self.config.nya.replacer.source, "g"), 
-                        self.config.nya.replacer.dest
-                    );
-                    content.innerHTML = content.innerHTML.replace(source, dest);
-                }
-            }
-        }
+  function detectColors (avatarElement) {
+    const images = avatarElement.querySelectorAll("img");
+    for (const imageIndex in images) {
+      images[imageIndex].crossOrigin = "anonymous";
+      const colorAvatar = () => {
+        const detector = new ColorDetector(images[imageIndex]);
+        detector.detect().then((color) => {
+          this.colors.backgroundColor = detector.getHexColor();
+          this.colors.borderColor = detector.getHexColor({ r: -40, g: -40, b: -40 });
+          avatarElement.style.backgroundColor = this.colors.backgroundColor;
+          avatarElement.style.borderColor = this.colors.borderColor;
+        });
+      };
+      if (images[imageIndex].complete) {
+        colorAvatar();
+      } else {
+        images[imageIndex].onload = colorAvatar;
+      }
+      return;
     }
-};
+  }
+].forEach((fn) => { PleromaCat.prototype[fn.name] = fn; });
 
-PleromaCat.prototype.detectColors = function(avatarElement) {
-    var self = this;
-    var images = avatarElement.getElementsByTagName('img');
-    for(var imageIndex in images) {
-        var detector = new ColorDetector(images[imageIndex]);
-        detector.detect();
-        self.colors.backgroundColor = detector.getHexColor();
-        self.colors.borderColor = detector.getHexColor({r:-40,g:-40,b:-40});
-        return;
-    }
-}
-
-function PleromaModCatify() {
-    this.cats = {};
-    this.config = {
-        'stylesheet': 'style.css',
-        'triggers': {
-            'displayName': [
-                '🐱',
-                '😺',
-                '🐈',
-                '😼',
-                '😹',
-                'にゃ',
-                'cat',
-                'mew',
-                'meow',
-                'nya',
-                'miaou',
-                'kitten',
-                'kitn',
-                'ktn',
-                'kadse',
-                'catte'
-            ],
-            'instances': [
-                'misskey.io'
-            ]
-        },
-        'filter': [
-            'timeline',
-            'panel-body',
-            'main',
-            'active',
-            'status-body'
+function PleromaModCatify () {
+  this.animals = {};
+  this.config = {
+    stylesheet: "style.css",
+    triggers: {
+      cat: {
+        displayName: [
+          "🐱",
+          "😺",
+          "🐈",
+          "😼",
+          "😹",
+          "にゃ",
+          "cat",
+          "mew",
+          "meow",
+          "nya",
+          "miaou",
+          "kitten",
+          "kitn",
+          "ktn",
+          "kadse",
+          "catte"
         ],
-    };
+        instances: [
+          "misskey.io"
+        ]
+      },
+      bear: {
+        displayName: [
+          "🐻",
+          "tf2",
+          "romaboo"
+        ],
+        instances: []
+      },
+      bob: {
+        displayName: [
+          "eris",
+          "bob"
+        ],
+        instances: [
+          "disqordia.space"
+        ],
+      },
+      rabbit: {
+        displayName: [
+            "🐰",
+            "🐇",
+            "rabbit",
+            "bunny",
+            "hase",
+            "häschen",
+            "kaninchen"
+        ],
+        instances: []
+      }
+    },
+    filter: [
+      "user-info",
+      "timeline",
+      "Conversation",
+      "panel-body",
+      "main",
+      "active",
+      "status-body"
+    ]
+  };
 
-    this.loadConfig();
+  this.loadConfig();
 }
+[
+  function loadConfig () {
+    window.fetch(PleromaModLoader.getModDir() + "pleroma-mod-catify/config.json").then((response) => {
+      if (response.ok) {
+        response.json().then((json) => {
+          PleromaModCatify.config = json;
+          for (const type in json.triggers) {
+            this.config.triggers[type] = {};
+            this.config.triggers[type].displayName = json.triggers[type].displayName || [];
+            this.config.triggers[type].instances = json.triggers[type].instances || [];
+          }
+        }).catch((error) => {
+          console.error("can't parse catify config");
+          console.error(error);
+        });
+      }
+    }).catch((error) => {
+      console.warn("can't load catify config");
+      console.warn(error);
+    });
+  },
 
-PleromaModCatify.prototype.loadConfig = function() {
-    var self = this;
-    var configUrl = window.__pleromaModLoader.config.modDirectory
-        + "pleroma-mod-catify/config.json";
-    window.__pleromaModLoader.loadJSON("GET", configUrl, function (response) { 
-        self.config.triggers.displayName = response.json.triggers.displayName;
-        self.config.triggers.instances = response.json.triggers.instances;
-    }, false);
-};
+  function onMutation (mutation, observer) {
+    if (mutation.target.classList.contains("user-info")) {
+      mutation.target.classList.remove("catified");
+      for (const type in this.config.triggers) {
+        mutation.target.classList.remove(type);
+      }
+    }
+    this.detectCats();
+    for (const element of mutation.addedNodes) {
+      this.catify(element);
+    }
+  },
 
-PleromaModCatify.prototype.onMutation = function(mutation, observer) {
-    var self = this;
-    self.detectCats();
-    self.catify();
-};
+  function onReady () {
+    this.areYouACat();
+    this.detectCats();
+    this.catify();
+  },
 
-PleromaModCatify.prototype.onReady = function () {
-    var self = this;
-    self.areYouACat();
-    self.detectCats();
-    self.catify();
-};
+  function onDestroy () {
+    const allCats = document.querySelectorAll(".catified");
+    for (const cat of allCats) {
+      cat.classList.remove("catified");
+      for (const type in this.config.triggers) {
+        cat.classList.remove(type);
+      }
+    }
+  },
 
-PleromaModCatify.prototype.run = function () {
-    var self = this;
+  function run () {
+    PleromaModLoader.includeModCss("pleroma-mod-catify/" + this.config.stylesheet);
+  },
 
-    var stylesheet = document.createElement('link');
-    stylesheet.setAttribute('rel', 'stylesheet');
-    stylesheet.setAttribute('href', window.__pleromaModLoader.config.modDirectory + 'pleroma-mod-catify/' + this.config.stylesheet);
-    document.getElementsByTagName('head')[0].appendChild(stylesheet);
-};
-
-PleromaModCatify.prototype.addCat = function(handle) {
-    var self = this;
+  function addCat (handle, type) {
+    if (type == null) {
+      type = "cat";
+    }
     handle = handle.trim();
-    if(!self.cats.hasOwnProperty(handle)) {
-        self.cats[handle] = new PleromaCat(handle);
+    if (!this.animals[handle]) {
+      this.animals[handle] = new PleromaCat(handle, type);
     }
-};
+  },
 
-PleromaModCatify.prototype.areYouACat = function() {
-    var self = this;
-    var profile = document.getElementsByClassName('name-and-screen-name');
-    var pattern = self.config.triggers.displayName.join('|');
-    var regex = new RegExp(pattern, 'i');
-    if(profile.length > 0) {
-        var username = profile[0].getElementsByClassName('user-name');
-        if(username.length > 0) {
-            if(regex.test(username[0].innerText)) {
-                var accountName = profile[0].getElementsByClassName('handle');
-                if(accountName.length > 0) {
-                    self.addCat(accountName[0].innerText.substring(1), true);
-                }
+  function areYouACat () {
+    const profile = document.querySelector(".user-card");
+    for (const type in this.config.triggers) {
+      const pattern = this.config.triggers[type].displayName.join("|");
+      const regex = new RegExp(pattern, "i");
+      if (profile) {
+        const username = profile.querySelector(".user-name");
+        if (username) {
+          if (regex.test(username.innerText)) {
+            const accountName = profile.querySelector(".user-screen-name");
+            if (accountName) {
+              this.addCat(accountName.innerText.substring(1), type);
             }
+          }
         }
+      }
     }
-};
+  },
 
-PleromaModCatify.prototype.detectCats = function() {
-    var self = this;
-    var nameAndAccountNames = document.getElementsByClassName('name-and-account-name');
-    var regexName = new RegExp(self.config.triggers.displayName.join('|'),'i');
-    var regexInstance = new RegExp(self.config.triggers.instances.join('|'),'i');
-    for(var accIndex in nameAndAccountNames) {
-        var currentAccount = nameAndAccountNames[accIndex];
-        if(currentAccount.getElementsByClassName) {
-            var isCat = false;
-            var username = currentAccount.getElementsByClassName('user-name');
-            if(username.length > 0) {
-                isCat = regexName.test(username[0].innerText);
+  function detectCatsByClassName (classname, usernameClass, accountnameClass) {
+    classname = classname || "status-container";
+    usernameClass = usernameClass || "status-username";
+    accountnameClass = accountnameClass || "account-name";
+    const nameAndAccountNames = document.querySelectorAll("." + classname);
+    for (const type in this.config.triggers) {
+      const regexName = new RegExp(this.config.triggers[type].displayName.join("|"), "i");
+      const regexInstance = new RegExp(this.config.triggers[type].instances.join("|"), "i");
+      for (const currentAccount of nameAndAccountNames) {
+        if (currentAccount.querySelector) {
+          let isCat = false;
+          const username = currentAccount.querySelector("." + usernameClass);
+          if (username && this.config.triggers[type].displayName.length > 0) {
+            isCat = regexName.test(username.innerText);
+          }
+          const account = currentAccount.querySelector("." + accountnameClass);
+          if (account) {
+            const handle = account.innerText;
+            if (this.config.triggers[type].instances.length > 0) {
+              isCat = isCat || regexInstance.test(handle);
             }
-            var account = currentAccount.getElementsByClassName('account-name');
-            if(account.length > 0) {
-                var handle = account[0].innerText;
-                isCat = isCat || regexInstance.test(handle);
-                if(isCat) {
-                    self.addCat(handle);
-                }
+            if (isCat) {
+              this.addCat(handle, type);
             }
+          }
         }
+      }
     }
-};
+  },
 
-PleromaModCatify.prototype.catify = function() {
-    var self = this;
-    for(var catIndex in self.cats) {
-        self.cats[catIndex].makeCat();
+  function detectCats () {
+    this.detectCatsByClassName("status-container");
+    this.detectCatsByClassName("basic-user-card", "basic-user-card-user-name-value", "basic-user-card-screen-name");
+  },
+
+  function catify (element) {
+    for (const catKey in this.animals) {
+      this.animals[catKey].makeCat(element);
     }
-};
+  }
+].forEach((fn) => { PleromaModCatify.prototype[fn.name] = fn; });
 
-
-window.__pleromaModLoader.registerClass('PleromaModCatify', PleromaModCatify);
+PleromaModLoader.registerMod(PleromaModCatify);
