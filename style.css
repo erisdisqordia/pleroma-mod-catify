@@ -30,6 +30,10 @@
   border: 2px solid !important;
 }
 
+.catified.rabbit .avatar-row .Avatar::before, .catified.rabbit .avatar-row .Avatar::after {
+  margin-top: 9px;
+}
+
 .catified>:not(.status-container) .Avatar {
   overflow: visible;
   border-radius: 100%!important;
@@ -113,32 +117,32 @@
 .catified.rabbit>:not(.status-container) .Avatar::after {
     /* 100px makes that it's actually just rounding and not a curve between the top and the sides */
     border-radius: 100px 100px 0 0;
-    border-width: 3px;
+    border-width: 4px;
     height: 100%;
 }
 .catified.rabbit>:not(.status-container) .Avatar::before {
-    transform: rotate(10deg);    
-    top: -.5rem;
-    right: 13.25%;
-    width: 18.5%;
+    transform: rotate(7deg);    
+    top: -1.4rem;
+    right: 15.25%;
+    width: 24.2%;
 }
 .catified.rabbit>:not(.status-container) .Avatar::after {
-    transform: none;
-    top: -.7rem;
+    transform: rotate(-7deg);;
+    top: -1.4rem;
     left: 13.25%;
-    width: 20%;
+    width: 25%;
 }
 .catified.rabbit .Avatar:hover::before { animation: earwiggleright-rabbit 0.65s infinite; }
 .catified.rabbit .Avatar:hover::after { animation: earwiggleleft-rabbit 0.65s infinite; }
 
 @keyframes earwiggleleft-rabbit {
   from { transform: rotate(0deg); }
-  75% { transform: rotate(-25deg); }
+  75% { transform: rotate(-12deg); }
   to { transform: rotate(0deg); }
 }
 
 @keyframes earwiggleright-rabbit {
   from { transform: rotate(10deg); }
-  75% { transform: rotate(25deg); }
+  75% { transform: rotate(20deg); }
   to { transform: rotate(10deg); }
 }
